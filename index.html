@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Note Taking App</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <button id="newNoteBtn"><i class="fas fa-plus"></i> New Note</button>
+            </div>
+            <div class="folders-section">
+                <h3>Folders</h3>
+                <ul id="folderList">
+                    <li class="active">All Notes</li>
+                    <li>Personal</li>
+                    <li>Work</li>
+                </ul>
+            </div>
+            <div class="tags-section">
+                <h3>Tags</h3>
+                <div id="tagList"></div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <button id="toggleSidebarBtn"><i class="fas fa-bars"></i></button>
+                    <div id="clockDisplay" class="clock-display"></div>
+                    <select id="fontSelect">
+                        <option value="Arial">Arial</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Georgia">Georgia</option>
+                    </select>
+                </div>
+                <div class="toolbar-right">
+                    <button id="darkModeBtn"><i class="fas fa-moon"></i></button>
+                    <button id="syncBtn"><i class="fas fa-sync"></i></button>
+                    <button id="saveBtn"><i class="fas fa-save"></i></button>
+                </div>
+            </div>
+            
+            <div id="editor"></div>
+            
+            <!-- PDF Viewer Container -->
+            <div id="pdfContainer" style="display: none;">
+                <div class="pdf-controls">
+                    <button id="fullscreenBtn" title="Toggle Fullscreen"><i class="fas fa-expand"></i></button>
+                    <button id="prevPage" title="Previous Page"><i class="fas fa-chevron-left"></i></button>
+                    <span id="pageInfo">Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+                    <button id="nextPage" title="Next Page"><i class="fas fa-chevron-right"></i></button>
+                    <button id="addSlide" title="Add Blank Slide"><i class="fas fa-plus"></i> Add Blank Slide</button>
+                    <button id="savePdfBtn" title="Save PDF"><i class="fas fa-file-download"></i> Save PDF</button>
+                </div>
+                <div id="pdfViewer">
+                    <canvas id="pdfCanvas"></canvas>
+                    <canvas id="drawingCanvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Save Slide Dialog -->
+            <div id="saveSlideDialog" class="dialog">
+                <div class="dialog-content">
+                    <h3>Save Current Slide?</h3>
+                    <p>Do you want to save your changes to the current slide before creating a new one?</p>
+                    <div class="dialog-buttons">
+                        <button id="saveAndContinue">Save & Continue</button>
+                        <button id="discardAndContinue">Discard & Continue</button>
+                        <button id="cancelNew">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exit Save Dialog -->
+            <div id="exitSaveDialog" class="dialog">
+                <div class="dialog-content">
+                    <h3>Save Changes?</h3>
+                    <p>How would you like to save your changes before leaving?</p>
+                    <div class="dialog-buttons">
+                        <button id="saveToExistingPdf" title="Update the current PDF with your changes">
+                            <i class="fas fa-file-pdf"></i> Save to Existing PDF
+                        </button>
+                        <button id="saveAsNewPdf" title="Create a new PDF with your changes">
+                            <i class="fas fa-file-export"></i> Save as New PDF
+                        </button>
+                        <button id="discardChanges" title="Leave without saving">
+                            <i class="fas fa-trash-alt"></i> Discard Changes
+                        </button>
+                        <button id="cancelExit" title="Return to editing">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Toolbar -->
+            <div class="bottom-toolbar">
+                <button class="tool-btn" id="textBtn" title="Add Text"><i class="fas fa-font"></i></button>
+                <div class="pen-tool">
+                    <button class="tool-btn" id="penBtn" title="Pen Tool (hold for options)"><i class="fas fa-pen"></i></button>
+                    <div class="pen-menu" id="penMenu">
+                        <div class="pen-opacity">
+                            <span>Opacity: <span id="penOpacityValue">100</span>%</span>
+                            <input type="range" id="penOpacity" min="1" max="100" value="100">
+                        </div>
+                        <div class="pen-size">
+                            <span>Size: <span id="penSizeValue">2</span>px</span>
+                            <input type="range" id="penSize" min="1" max="20" value="2">
+                        </div>
+                        <div class="color-menu" id="colorMenu">
+                            <div class="color-option" data-color="#000000" style="background-color: #000000;"></div>
+                            <div class="color-option" data-color="#FF0000" style="background-color: #FF0000;"></div>
+                            <div class="color-option" data-color="#00FF00" style="background-color: #00FF00;"></div>
+                            <div class="color-option" data-color="#0000FF" style="background-color: #0000FF;"></div>
+                            <div class="color-option" data-color="#FF00FF" style="background-color: #FF00FF;"></div>
+                            <div class="color-option" data-color="#FFA500" style="background-color: #FFA500;"></div>
+                            <div class="color-option" data-color="#800080" style="background-color: #800080;"></div>
+                            <div class="color-option" data-color="#008080" style="background-color: #008080;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="eraser-tool">
+                    <button class="tool-btn" id="eraserBtn" title="Eraser Tool (hold for options)"><i class="fas fa-eraser"></i></button>
+                    <div class="eraser-menu" id="eraserMenu">
+                        <div class="eraser-opacity">
+                            <span>Opacity: <span id="opacityValue">100</span>%</span>
+                            <input type="range" id="eraserOpacity" min="1" max="100" value="100">
+                        </div>
+                        <div class="eraser-size">
+                            <span>Size: <span id="sizeValue">20</span>px</span>
+                            <input type="range" id="eraserSize" min="5" max="50" value="20">
+                        </div>
+                    </div>
+                </div>
+                <button class="tool-btn" id="imageBtn" title="Insert Image"><i class="fas fa-image"></i></button>
+                <button class="tool-btn" id="recordBtn" title="Voice Recording"><i class="fas fa-microphone"></i></button>
+                <button class="tool-btn" id="pdfBtn" title="Import PDF"><i class="fas fa-file-pdf"></i></button>
+                <button class="tool-btn" id="timerBtn" title="Timer"><i class="fas fa-clock"></i></button>
+                <button class="tool-btn" id="undoBtn" title="Undo"><i class="fas fa-undo"></i></button>
+                <button class="tool-btn" id="redoBtn" title="Redo"><i class="fas fa-redo"></i></button>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

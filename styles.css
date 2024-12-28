@@ -1,0 +1,660 @@
+:root {
+    --primary-color: #8BC34A;
+    --secondary-color: #689F38;
+    --background-color: #ffffff;
+    --text-color: #333333;
+    --toolbar-bg: #f5f5f5;
+    --sidebar-width: 250px;
+}
+
+/* Dark mode variables */
+[data-theme="dark"] {
+    --background-color: #1a1a1a;
+    --text-color: #ffffff;
+    --toolbar-bg: #2d2d2d;
+    --primary-color: #7CB342;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar styles */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--background-color);
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.sidebar-header {
+    margin-bottom: 20px;
+}
+
+#newNoteBtn {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Main content styles */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: var(--toolbar-bg);
+}
+
+#editor {
+    flex: 1;
+    padding: 20px;
+    background-color: var(--background-color);
+}
+
+/* Bottom toolbar styles */
+.bottom-toolbar {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    background-color: var(--toolbar-bg);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.tool-btn {
+    margin: 0 5px;
+    padding: 10px;
+    background: none;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+.tool-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Folder and tag styles */
+.folders-section, .tags-section {
+    margin-bottom: 20px;
+}
+
+.folders-section h3, .tags-section h3 {
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+#folderList {
+    list-style: none;
+}
+
+#folderList li {
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#folderList li.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* PDF Viewer styles */
+#pdfContainer {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 120px);
+    background: #f0f0f0;
+    overflow: hidden;
+}
+
+.pdf-controls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    z-index: 1000;
+}
+
+.pdf-controls button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 3px;
+}
+
+.pdf-controls button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+#pdfViewer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#pdfCanvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+#drawingCanvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    cursor: crosshair;
+}
+
+/* Color picker styles */
+.pen-tool {
+    position: relative;
+    display: inline-block;
+}
+
+.color-menu {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 5px;
+    width: 160px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.color-menu.show {
+    display: grid;
+}
+
+.color-option {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.2s;
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+}
+
+.color-option.active {
+    border-color: #333;
+}
+
+/* Dark mode adjustments for color picker */
+[data-theme="dark"] .color-menu {
+    background: #2d2d2d;
+    border-color: #444;
+}
+
+[data-theme="dark"] .color-option.active {
+    border-color: #fff;
+}
+
+/* Pen menu styles */
+.pen-menu {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    width: 200px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    margin-bottom: 10px;
+}
+
+.pen-menu.show {
+    display: block;
+}
+
+.pen-opacity,
+.pen-size {
+    margin-bottom: 10px;
+}
+
+.pen-opacity span,
+.pen-size span {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 12px;
+    color: #666;
+}
+
+.pen-menu .color-menu {
+    position: static;
+    display: grid;
+    transform: none;
+    margin: 10px 0 0 0;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    width: 100%;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .pen-menu {
+    background: #2d2d2d;
+    border-color: #444;
+}
+
+[data-theme="dark"] .pen-opacity span,
+[data-theme="dark"] .pen-size span {
+    color: #aaa;
+}
+
+/* Eraser menu styles */
+.eraser-tool {
+    position: relative;
+    display: inline-block;
+}
+
+.eraser-menu {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    width: 200px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    margin-bottom: 10px;
+}
+
+.eraser-menu.show {
+    display: block;
+}
+
+.eraser-opacity,
+.eraser-size {
+    margin-bottom: 10px;
+}
+
+.eraser-opacity span,
+.eraser-size span {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 12px;
+    color: #666;
+}
+
+.eraser-opacity input[type="range"],
+.eraser-size input[type="range"] {
+    width: 100%;
+    margin: 5px 0;
+}
+
+/* Custom range input styling */
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 5px;
+    border-radius: 5px;
+    background: #ddd;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    transition: background .15s ease-in-out;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    background: var(--secondary-color);
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .eraser-menu {
+    background: #2d2d2d;
+    border-color: #444;
+}
+
+[data-theme="dark"] .eraser-opacity span,
+[data-theme="dark"] .eraser-size span {
+    color: #aaa;
+}
+
+[data-theme="dark"] input[type="range"] {
+    background: #444;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .sidebar {
+        position: absolute;
+        left: -var(--sidebar-width);
+        transition: left 0.3s ease;
+    }
+
+    .sidebar.open {
+        left: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    :root {
+        --sidebar-width: 100%;
+    }
+    body {
+        font-size: 14px;
+    }
+    .toolbar {
+        flex-direction: column;
+    }
+    .tool-btn {
+        min-width: 48px;
+        min-height: 48px;
+    }
+}
+
+/* Quill editor custom styles */
+.ql-toolbar.ql-snow {
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.ql-container.ql-snow {
+    border-color: rgba(0, 0, 0, 0.1);
+    height: calc(100% - 42px);
+}
+
+/* Save Dialog styles */
+.dialog {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.dialog.show {
+    display: flex;
+}
+
+.dialog-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 90%;
+}
+
+.dialog-content h3 {
+    margin: 0 0 15px 0;
+    color: var(--text-color);
+}
+
+.dialog-content p {
+    margin: 0 0 20px 0;
+    color: var(--text-color);
+}
+
+.dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.dialog-buttons button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#saveAndContinue {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+#saveAndContinue:hover {
+    background-color: var(--secondary-color);
+}
+
+#discardAndContinue {
+    background-color: #dc3545;
+    color: white;
+}
+
+#discardAndContinue:hover {
+    background-color: #c82333;
+}
+
+#cancelNew {
+    background-color: #6c757d;
+    color: white;
+}
+
+#cancelNew:hover {
+    background-color: #5a6268;
+}
+
+/* Exit dialog specific styles */
+#exitSaveDialog .dialog-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+#saveToExistingPdf,
+#saveAsNewPdf {
+    background-color: var(--primary-color);
+    color: white;
+    grid-column: span 2;
+}
+
+#saveToExistingPdf:hover,
+#saveAsNewPdf:hover {
+    background-color: var(--secondary-color);
+}
+
+#discardChanges {
+    background-color: #dc3545;
+    color: white;
+}
+
+#discardChanges:hover {
+    background-color: #c82333;
+}
+
+#cancelExit {
+    background-color: #6c757d;
+    color: white;
+}
+
+#cancelExit:hover {
+    background-color: #5a6268;
+}
+
+/* Dark mode adjustments for exit dialog */
+[data-theme="dark"] #exitSaveDialog .dialog-content {
+    background: #2d2d2d;
+    color: #fff;
+}
+
+[data-theme="dark"] #exitSaveDialog button {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Dark mode adjustments for dialog */
+[data-theme="dark"] .dialog-content {
+    background: #2d2d2d;
+}
+
+[data-theme="dark"] .dialog-content h3,
+[data-theme="dark"] .dialog-content p {
+    color: #fff;
+}
+
+/* Updated fullscreen styles */
+.fullscreen-mode {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9999 !important;
+    background: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.fullscreen-mode #pdfViewer {
+    flex: 1;
+    position: relative;
+    width: 100vw;
+    height: calc(100vh - 50px);
+    background: #f0f0f0;
+    overflow: hidden;
+}
+
+.fullscreen-mode #pdfCanvas,
+.fullscreen-mode #drawingCanvas {
+    position: absolute;
+    pointer-events: auto;
+    touch-action: none;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+.fullscreen-mode .pdf-controls {
+    height: 50px;
+    background: #333;
+    color: white;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    z-index: 10000;
+}
+
+/* Dark mode adjustments for fullscreen */
+[data-theme="dark"] .fullscreen-mode {
+    background: #1a1a1a;
+}
+
+[data-theme="dark"] .fullscreen-mode .pdf-controls {
+    background: #2d2d2d;
+}
+
+/* Timer styles */
+#timerBtn {
+    min-width: 100px;
+    font-family: monospace;
+    transition: color 0.3s ease;
+}
+
+#timerBtn i {
+    margin-right: 5px;
+}
+
+#timerBtn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+[data-theme="dark"] #timerBtn {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] #timerBtn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Clock display styles */
+.clock-display {
+    font-family: monospace;
+    font-size: 14px;
+    color: var(--text-color);
+    opacity: 0.7;
+    margin: 0 15px;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    user-select: none;
+}
+
+[data-theme="dark"] .clock-display {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Make clock more subtle when in fullscreen or focused mode */
+.fullscreen-mode .clock-display {
+    opacity: 0.4;
+}
+
+.fullscreen-mode .clock-display:hover {
+    opacity: 0.7;
+}
